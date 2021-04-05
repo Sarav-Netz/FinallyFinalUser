@@ -6,6 +6,16 @@
     }else{
         header('Location:admin.php');
     }
+
+    function getCurenntUserTask(){
+        $userId=$_SESSION['userId'];
+        $dbObj=new dbConnection();
+        $queryObj=new createTaskQuery();
+        $dbObj->connectDb();
+        $queryObj->selectTaskWithUserId($userId);
+        $result=mysqli_query($dbObj->con,$queryObj->myQuery);
+        return $result;
+    }
 ?>
 
 <!DOCTYPE html>
@@ -36,6 +46,7 @@
                     <div class="dropdown-menu bg-dark " aria-labelledby="navbarDropdown">
                     <a class="dropdown-item font-weight-bold text-light" href="staffInterface.php?myTask=true">My Task</a>
                     <a class="dropdown-item font-weight-bold text-light" href="staffInterface.php?addNewTask=true">Add New Task </a>
+                    <a class="dropdown-item font-weight-bold text-light" href="staffInterface.php?completedTask=true">Completed Task</a>
                     <!-- <div class="dropdown-divider"></div> -->
                     </div>
                 </li>
@@ -142,12 +153,7 @@
         <!-- section to show the tasks of the current user -->
         <?php
             if(isset($_GET['myTask'])):
-                $userId=$_SESSION['userId'];
-                $dbObj=new dbConnection();
-                $queryObj=new createTaskQuery();
-                $dbObj->connectDb();
-                $queryObj->selectTaskWithUserId($userId);
-                $result=mysqli_query($dbObj->con,$queryObj->myQuery);
+                $result=getCurenntUserTask();
                 $srNo=0;
                 if(mysqli_num_rows($result)>0): 
                 ?>
@@ -165,6 +171,7 @@
                 <?php
                     while($row=$result->fetch_assoc()):
                         $srNo+=1;
+                        if($row['taskCompleted']=='no'):
                 ?>
                             <tr>
                                 <th scope="row"><?php echo $srNo; ?></th>
@@ -172,10 +179,10 @@
                                 <td><?php echo $row['taskDisc'] ?></td>
                                 <td>
                                     <a href="staffInterface.php?editTaskId=<?php echo $row['taskId']; ?>">EDIT</a>|
-                                    <a href="staffInterface.php?deleteTaskId=<?php echo $row['taskId']; ?>" onclick="return confirmDelete()">Delete</a>
+                                    <a href="staffInterface.php?completedTaskId=<?php echo $row['taskId']; ?>" >Add to completed</a>
                                 </td>
                             </tr>
-                <?php endwhile; ?>
+                <?php endif; endwhile; ?>
                         </tbody>
                     </table>
                 </div>
@@ -185,10 +192,9 @@
                         Hurray! You have no Pending Task.
                     </div>
                 <?php endif; ?>
-                <div class="container">                    
-                    <a href="staffInterface.php?addNewTask=<?php echo $userId; ?>" class="btn btn-primary" >Add New Task</a>
-                </div>      
+                <a href="managerInterface.php?addNewTask=<?php echo $row['userId']; ?>" class="btn btn-primary">Add New Task</a>
                 <?php endif; ?>
+                
         </div>
 
         <div class="container">
@@ -236,30 +242,72 @@
         ?> 
         </div>
 
+
+        <!-- Complete any taks -->
         <div>  
-            <!-- Delete the taks -->
-            <?php
-                if(isset($_GET['deleteTaskId'])):
-                    $taskId=$_GET['deleteTaskId'];
-                    $dbObj=new dbConnection();
-                    $queryObj=new createTaskQuery();
-                    // $userObj=new userChange();
-                    $dbObj->connectDb();
-                    $queryObj->deleteTask($taskId);
-                    $result=userChange::handleAnyQuery($dbObj->con,$queryObj->myQuery);
-                    $dbObj->dissconnectDb();
-                    if($result): ?>
-                    <div class="alert alert-warning" role="alert">
-                    Task is DELETED successfully!
-                    </div>
-                    <?php
-                    else: ?>
-                       <div class="alert alert-danger" role="alert">
-                            We are unable to do this task!
-                    </div>
-                <?php endif; endif; 
+        <?php
+            if(isset($_GET['completeTaskId'])):
+                $taskId=$_GET['completeTaskId'];
+                $dbObj=new dbConnection();
+                $dbObj->connectDb();
+                $queryObj=new createTaskQuery();
+                $queryObj->completeTask($taskId);
+                $result=mysqli_query($dbObj->con,$queryObj->myQuery);
+                if($result):
             ?>
+                        <div class="alert alert-success" role="alert">
+                                Task added to completed.
+                        </div>
+                <?php else: ?>
+                    <div class="alert alert-danger" role="alert">
+                        There is some Failure to do this Task! please try Again!
+                    </div>
+            <?php endif; endif; ?>
         </div>
+        <!-- completed task information -->
+        <div>
+        <?php 
+            if(isset($_GET['completedTask'])):
+                $result=getCurenntUserTask();
+                $srNo=0;
+                if(mysqli_num_rows($result)>0): 
+                ?>
+                <div class="container">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th scope="col">Ser. No.</th>
+                                <th scope="col">Task Title</th>
+                                <th scope="col">Task Detail</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                <?php
+                    while($row=$result->fetch_assoc()):
+                        $srNo+=1;
+                        if($row['taskCompleted']=='yes'):
+                ?>
+                            <tr>
+                                <th scope="row"><?php echo $srNo; ?></th>
+                                <td><?php echo $row['taskTitle']; ?></td>
+                                <td><?php echo $row['taskDisc'] ?></td>
+                                <td>
+                                    <!-- <a href="staffInterface.php?editTaskId=<?php //echo $row['taskId']; ?>">EDIT</a>| -->
+                                    <!-- <a href="staffInterface.php?completedTaskId=<?php //echo $row['taskId']; ?>" >Add to completed</a> -->
+                                    Cotact with Manager Or Admin regarding this Tasks.
+                                </td>
+                            </tr>
+                <?php endif; endwhile; ?>
+                        </tbody>
+                    </table>
+                    <?php else: ?>
+                    <div class="alert alert-primary" role="alert">
+                        Hurray! You have no Pending Task.
+                    </div>
+            <?php endif; endif; ?>
+        </div>
+
 
         <div>
         <!-- EDIT ANY GIVEN TASK -->

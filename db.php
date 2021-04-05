@@ -2,7 +2,7 @@
     class dbConnection{
         private $serverName="localhost";  #  this is hostName
         private $userName="root";    # this the user name for the database
-        private $userPass="root";    #this is the password for the user database  
+        private $userPass="";    #this is the password for the user database  
         private $dbName="usermanagement";    #this is the official name of our database
         public $con = FALSE;
         #this method will try to connect database for the different purposes;
@@ -105,6 +105,14 @@
         #this will delete an end user from the database
         public function deleteTask($taskId){
             $this->myQuery="DELETE FROM $this->tableName WHERE $this->tableName.`taskId`=$taskId";
+            return $this->myQuery;
+        }
+        public function reassignTask($taskId){
+            $this->myQuery= "UPDATE `usermanagement`.`$this->tableName` SET `taskCompleted`='no' WHERE  `taskId`=$taskId;";
+            return $this->myQuery;
+        }
+        public function completeTask($taskId){
+            $this->myQuery= "UPDATE `usermanagement`.`$this->tableName` SET `taskCompleted`='yes' WHERE  `taskId`=$taskId;";
             return $this->myQuery;
         }
         

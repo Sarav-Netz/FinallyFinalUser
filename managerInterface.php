@@ -73,6 +73,7 @@
                     <a class="dropdown-item font-weight-bold text-light" href="managerInterface.php?myTask=true">My Task</a>
                     <a class="dropdown-item font-weight-bold text-light" href="managerInterface.php?addTaskDirect=true">Add New Task</a>
                     <a class="dropdown-item font-weight-bold text-light" href="managerInterface.php?otherUserTask=true">Staff Member Tasks </a>
+                    <a class="dropdown-item font-weight-bold text-light" href="managerInterface.php?completedTask=true">Completed Task</a>
                     <!-- <div class="dropdown-divider"></div> -->
                     </div>
                 </li>
@@ -240,16 +241,9 @@
 
 
 
-
+    <!-- >>>>>>>>>>>>>---------EDIT THE CURRENT USER-------<<<<<<<<<<<< -->
     <?php if(isset($_GET['editSelf'])):
                 $userId=$_SESSION['userId'];
-                // $dbObj=new dbConnection();
-                // $queryObj=new createDataQuery();
-                // // $userObj=new userChange();
-                // $dbObj->connectDb();
-                // $queryObj->selectWithCond($userId);                    
-                // $result=mysqli_query($dbObj->con,$queryObj->myQuery);
-                // $row=$result->fetch_assoc();
                 $row=getCurrentUser($userId);
                 include('edituser.php');    
         ?>
@@ -276,6 +270,13 @@
             <button type="submit" name="updateInfo" class="btn btn-primary">Update</button>
             </form>
         <?php endif; ?>
+    
+    
+    
+    
+    
+    
+    
     <!-- >>>>>>>>>>>>>>>HOME PAGE SECTION<<<<<<<<<<<<<<<< -->
     <div>
     <!-- Home page of current user Desktop -->
@@ -326,12 +327,21 @@
         
         <?php endif; ?>
     </div>
+
+
+    <!-- COMPLETED TASK -->
+    <?php
+        if(isset($_GET['completedTask'])){
+            include('completed.php');
+        } 
+    ?>
     
     <!-- <<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>STAFF MEMBER USER VALIDATION AND APPROVAL SECTION>>>><<<<<<<<<<<<<<<>>>>>>>>>>>>>>> -->
     <div>
     <!-- Section to improve the user Information -->
         <?php
             if(isset($_GET['validMe'])):
+                //valid any user
                 $userId=$_GET['validMe'];
                 $dbObj=new dbConnection();
                 $queryObj=new createDataQuery();
@@ -340,16 +350,18 @@
                 $queryObj->validateQuery($userId);
                 $result=userChange::handleAnyQuery($dbObj->con,$queryObj->myQuery);
                 $dbObj->dissconnectDb();
-                if($result){
-                echo "<div class=\"alert alert-success\" role=\"alert\">
+                if($result): ?>
+                <div class="alert alert-success" role="alert">
                 user is approved successfully
-                </div>";}else{
-                    echo "<div class=\"alert alert-danger\" role=\"alert\">
-                We are unable to do this task!
-                </div>";
-                }
-            endif;
+                </div>
+                <?php else: ?>
+                    <div class="alert alert-danger" role="alert">
+                        We are unable to do this task!
+                    </div>
+                <?php endif; ?>
+        <?php endif;
                 if(isset($_GET['blockMe'])):
+                    //block any user
                     $userId=$_GET['blockMe'];
                     $dbObj=new dbConnection();
                     $queryObj=new createDataQuery();
@@ -358,16 +370,16 @@
                     $queryObj->deValidateQuery($userId);
                     $result=userChange::handleAnyQuery($dbObj->con,$queryObj->myQuery);
                     $dbObj->dissconnectDb();
-                    if($result){
-                    echo "<div class=\"alert alert-warning\" role=\"alert\">
-                    user is blocked successfully
-                    </div>";}else{
-                        echo "<div class=\"alert alert-danger\" role=\"alert\">
-                    We are unable to do this task!
-                    </div>";
-                    }
-                    endif;
-        ?>
+                    if($result): ?>
+                    <div class="alert alert-warning" role="alert">
+                        user is blocked successfully
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-danger" role="alert">
+                        We are unable to do this task!
+                    </div>
+                    
+                <?php endif; endif; ?>
     </div>
     
     <!-- >>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<ADD AND DELETE STAFF MEMBER>>>>>>>>>>>>>>>>>>>>>>><>>>>>>>>>>>>>>>>>>>>>>>>>>> -->
@@ -391,16 +403,15 @@
                 $queryObj->deleteQuery($userId);
                 $result=userChange::handleAnyQuery($dbObj->con,$queryObj->myQuery);
                 $dbObj->dissconnectDb();
-                if($result){
-                echo "<div class=\"alert alert-warning\" role=\"alert\">
-                user is DELETED successfully!
-                </div>";}else{
-                    echo "<div class=\"alert alert-danger\" role=\"alert\">
-                We are unable to do this task!
-                </div>";
-                }
-                endif;
-        ?>
+                if($result): ?>
+                <div class="alert alert-warning" role="alert">
+                    user is DELETED successfully!
+                </div>
+            <?php else: ?>
+                    <div class="alert alert-danger" role="alert">
+                        We are unable to do this task!
+                    </div>
+            <?php endif; endif; ?>
     </div>
 
     <!-- >>>>>>>>>>>CURRENT USER TASKS SECTION<<<<<<<<<<<<<<<<<<<<<<<< -->
@@ -438,6 +449,7 @@
             <?php
                 while($row=$result->fetch_assoc()):
                     $srNo+=1;
+                    if($row['taskCompleted']=='no'):
             ?>
                         <tr>
                             <th scope="row"><?php echo $srNo; ?></th>
@@ -448,10 +460,11 @@
                             <td><?php echo $row['taskDisc'] ?></td>
                             <td>
                                 <a href="managerInterface.php?editTaskId=<?php echo $row['taskId']; ?>">EDIT</a>|
-                                <a href="managerInterface.php?deleteTaskId=<?php echo $row['taskId']; ?>" onclick="return confirmDelete()">Delete</a>
+                                <a href="managerInterface.php?deleteTaskId=<?php echo $row['taskId']; ?>" onclick="return confirmDelete()">Delete</a>|
+                                <a href="managerInterface.php?completeTaskId=<?php echo $row['taskId']; ?>">Marks as Completed</a>
                             </td>
                         </tr>
-            <?php endwhile; ?>
+            <?php endif; endwhile; ?>
                     </tbody>
                 </table>
             </div>
@@ -498,6 +511,7 @@
                 <?php if($_SESSION['userRole']=='admin'):
                         while($row=$result->fetch_assoc()):
                             $srNo+=1;
+                            if($row['taskCompleted']=='no'):
                             $datarow=getCurrentUser($row['userId']);
                     ?>
                             <tr>
@@ -513,7 +527,7 @@
                                     <a href="managerInterface.php?addNewTask=<?php echo $row['userId']; ?>" class="btn btn-primary stretched-link" >Assign New Task</a>
                                 </td>
                             </tr>
-                <?php endwhile; endif; ?>
+                <?php endif; endwhile; endif; ?>
                 <?php if($_SESSION['userRole']=='manager'):
                         while($row=$result->fetch_assoc()):
                             $datarow=getCurrentUser($row['userId']);
@@ -523,6 +537,7 @@
                             $dataResult=userChange::handleAnyQuery($dbObj->con,$dataQueryObj->myQuery);
                             $dataRow=$dataResult->fetch_assoc(); 
                             if($dataRow['userRole']!='admin' && $dataRow['userRole']!='manager'):
+                                if($row['taskCompleted']=='no'):
                     ?>
                                 <tr>
                                     <th scope="row"><?php echo $srNo; ?></th>
@@ -537,7 +552,7 @@
                                         <a href="managerInterface.php?addNewTask=<?php echo $row['userId']; ?>" class="btn btn-primary stretched-link" >Assign New Task</a>
                                     </td>
                                 </tr>
-                    <?php endif;
+                    <?php endif; endif;
                         endwhile; 
                     endif; ?>
                     </tbody>
@@ -836,6 +851,54 @@
                     </tbody>
                 </table>
                 <?php endif; ?>
+    </div>
+    
+
+    <!-- >>>>>>>>COMPLETE ANY TASK<<<<<<<<<<<< -->
+    <div class="container">
+    <?php
+    
+    if(isset($_GET['completeTaskId'])):
+        $taskId=$_GET['completeTaskId'];
+        $dbObj=new dbConnection();
+        $dbObj->connectDb();
+        $queryObj=new createTaskQuery();
+        $queryObj->completeTask($taskId);
+        $result=mysqli_query($dbObj->con,$queryObj->myQuery);
+        if($result):
+    ?>
+                <div class="alert alert-success" role="alert">
+                        Task added to completed.
+                </div>
+        <?php else: ?>
+            <div class="alert alert-danger" role="alert">
+                There is some Failure to do this Task! please try Again!
+            </div>
+    <?php endif; endif; ?>
+    </div>
+
+
+    <!-- >>>>>>>>>>>>>>>>>>>>>Reassigning a task<<<<<<<<<<<<<< -->
+    <div class="container">
+    <?php
+    
+    if(isset($_GET['reassignTask'])):
+        $taskId=$_GET['reassignTask'];
+        $dbObj=new dbConnection();
+        $dbObj->connectDb();
+        $queryObj=new createTaskQuery();
+        $queryObj->reassignTask($taskId);
+        $result=mysqli_query($dbObj->con,$queryObj->myQuery);
+        if($result):
+    ?>
+                <div class="alert alert-success" role="alert">
+                        Task is reassigned again.
+                </div>
+        <?php else: ?>
+            <div class="alert alert-danger" role="alert">
+                There is some Failure to do this Task! please try Again!
+            </div>
+    <?php endif; endif; ?>
     </div>
 
     <!-- <<<<<<<<<<<<<<<< JAVASCRIPT PART >>>>>>>>>>>>>>>>>>>>>>>>>>  -->
