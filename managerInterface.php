@@ -495,10 +495,17 @@
 
 
     <!-- >>>>>>>>>>Section DIVISION Task of other Users<<<<<<<<<<<< -->
-    <div class="container">
+    <div class="row">
         <!-- section to show the information about the other users task -->
+        
+        
         <?php 
-            if(isset($_GET['otherUserTask'])):
+            if(isset($_GET['otherUserTask'])): ?>
+                <div class="col-md-2 border-right">
+                        <h3>Filter</h3>
+                        <?php include('filter.php'); ?>
+                    </div>
+            <?php        
                 $dbObj=new dbConnection();
                 $queryObj=new createTaskQuery();
                 $dbObj->connectDb();
@@ -506,8 +513,10 @@
                 $result=mysqli_query($dbObj->con,$queryObj->myQuery);
                 $srNo=0;
                 if(mysqli_num_rows($result)>0): 
+
             ?>
-                    <div class="container">
+                   
+                    <div class="col-md-10">
                         <table class="table table-sm">
                             <thead>
                                 <tr>
@@ -1043,6 +1052,11 @@
             // }else{
             //     window.location='managerInterface.php?showAllMember=true';
             // }
+        }
+        function provideCheckInfo(){
+            userRole=document.getElementsByName('filterCheckbox').value;
+            console.log(userRole);
+            // window.location.assign(`managerInterface.php?${userRole}=true`);
         }
     </script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"

@@ -1,0 +1,73 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+</head>
+
+<body>
+    <form name="FilterForm" id="FilterForm" action="" method="">
+        <input type="checkbox" name="filterStatus" value="ISO " />
+        <label for="filter_1">ISO</label>
+        <input type="checkbox" name="filterStatus" value="AMCA" />
+        <label for="filter_2">AMCA</label>
+        <input type="checkbox" name="filterStatus" value="UL" />
+        <label for="filter_3">UL</label>
+    </form>
+    <table style="border: 2px;" id="StatusTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>ISO</th>
+                <th>AMCA</th>
+                <th>UL</th>
+            </tr>
+        <tbody>
+            <tr class="ISO">
+                <td class="Name">Name1</td>
+                <td class="ISO">&#x2713;</td>
+                <td class="AMCA">&nbsp;</td>
+                <td class="UL">&nbsp;</td>
+            </tr>
+            <tr class="ISO AMCA">
+                <td class="Name">Name2</td>
+                <td class="ISO">&#x2713;</td>
+                <td class="AMCA">&#x2713;</td>
+                <td class="UL">&nbsp;</td>
+            </tr>
+            <tr class="ISO AMCA UL">
+                <td class="Name">Name3</td>
+                <td class="ISO">&#x2713;</td>
+                <td class="AMCA">&#x2713;</td>
+                <td class="UL">&#x2713;</td>
+            </tr>
+        </tbody>
+    </table>
+    <script>
+
+        $("input[name='filterStatus']").change(function () {
+            var classes = [];
+
+            $("input[name='filterStatus']").each(function () {
+                if ($(this).is(":checked")) { classes.push('.' + $(this).val()); }
+            });
+
+            if (classes == "") { // if no filters selected, show all items
+                $("#StatusTable tbody tr").show();
+            } else { // otherwise, hide everything...
+                $("#StatusTable tbody tr").hide();
+
+                $("#StatusTable tr").each(function () {
+                    var show = true;
+                    var row = $(this);
+                    classes.forEach(function (className) {
+                        if (row.find('td' + className).html() == '&nbsp;') { show = false; }
+                    });
+                    if (show) { row.show(); }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

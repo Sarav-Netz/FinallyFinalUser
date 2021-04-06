@@ -1,4 +1,8 @@
-<div class="container">
+<div class="row">
+        <div class="col-md-3 ml">
+            <h3>Filters</h3>
+            <?php include('filter.php'); ?>
+        </div>
         <?php
             $dbObj=new dbConnection();
             $queryObj=new createTaskQuery();
@@ -8,7 +12,7 @@
             $srNo=0;
             if(mysqli_num_rows($result)>0): 
             ?>
-                <div class="container">
+                <div class="col-md-9">
                     <table class="table table-sm">
                         <thead>
                             <tr>
@@ -37,7 +41,7 @@
                                 <td><?php echo $row['taskDisc'] ?></td>
                                 <td>
                                     <a href="managerInterface.php?deleteTaskId=<?php echo $row['taskId']; ?>" onclick="return confirmDelete()" class="btn btn-danger stretched-link">Delete</a>
-                                    <a href="managerInterface.php?reassignTask=<?php echo $row['userId']; ?>" class="btn btn-primary stretched-link" >Reassign Task</a>
+                                    <a href="managerInterface.php?reassignTask=<?php echo $row['taskId']; ?>" class="btn btn-primary stretched-link" >Reassign Task</a>
                                 </td>
                             </tr>
                 <?php endif; endwhile; endif; ?>
