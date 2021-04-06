@@ -1,5 +1,5 @@
 <?php
-    if(isset($_POST['addTASK'])){
+    if(isset($_POST['addTASK'])):
         $userId=$_POST['userIdForTask'];
         $taskName=$_POST['newTaskTitle'];
         $taskDetail=$_POST['newTaskDisc'];
@@ -18,19 +18,18 @@
         $result = mysqli_query($dbObj->con,$queryObj->myQuery);
         // $result = mysqli_query($dbObj->con,"INSERT INTO  `usermanagement`.`usertask` (`userId`, `taskTitle`, `taskDisc`) VALUES ('$userId', '$taskName', '$taskDetail');");
         // $result="INSERT INTO `usertask` (`userId`, `taskTitle`, `taskDisc`) VALUES ('$userId', '$taskName', '$taskDetail');";
-        if($result){
-            echo "<div class=\"alert alert-success\" role=\"alert\">
+        if($result): ?>
+
+            <div class="alert alert-success" role="alert">
                 Task added successfully
-            </div>";
+            </div>
             
-        }else{
-            echo "<div class=\"alert alert-danger\" role=\"alert\">
+        <?php else: ?>
+            <div class="alert alert-danger" role="alert">
                 Sorry! but we are unable to do this task;
-            </div>";
-        }
+            </div>
+        <?php endif; endif; ?>
         
-    }
-?>
 <!-- <!DOCTYPE html>
 <html lang="en">
 <head>

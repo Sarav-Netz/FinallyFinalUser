@@ -82,10 +82,23 @@
                     Categories
                     </a>
                     <div class="dropdown-menu bg-dark " aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item font-weight-bold text-light" href="managerInterface.php?showDeveloper=true">Developer</a>
+                    <?php
+                        $dbObj=new dbConnection();
+                        $dbObj->connectDb();
+                        $query="SELECT DISTINCT userRole FROM workmate;";
+                        $result=mysqli_query($dbObj->con,$query);
+                        while($row=$result->fetch_assoc()):
+                            if($_SESSION['userRole']=='admin'): 
+                    ?>
+                            <a class="dropdown-item font-weight-bold text-light" href="managerInterface.php?<?php echo $row['userRole']; ?>=true"><?php echo $row['userRole']; ?></a>
+                    <!-- <a class="dropdown-item font-weight-bold text-light" href="managerInterface.php?showDeveloper=true">Developer</a>
                     <a class="dropdown-item font-weight-bold text-light" href="managerInterface.php?showDesigner=true">Designer</a>
-                    <a class="dropdown-item font-weight-bold text-light" href="managerInterface.php?showTesting=true">Testing </a>
+                    <a class="dropdown-item font-weight-bold text-light" href="managerInterface.php?showTesting=true">Testing </a> -->
                     <!-- <div class="dropdown-divider"></div> -->
+                        <?php else: 
+                            if($row['userRole']!='admin' && $row['userRole']!='manager'): ?>
+                                <a class="dropdown-item font-weight-bold text-light" href="managerInterface.php?<?php echo $row['userRole']; ?>=true"><?php echo $row['userRole']; ?></a>
+                            <?php endif; endif; endwhile; ?>
                     </div>
                 </li>
             </ul>
@@ -522,9 +535,10 @@
                                 <td><?php echo $row['taskTitle']; ?></td>
                                 <td><?php echo $row['taskDisc'] ?></td>
                                 <td>
-                                    <a href="managerInterface.php?editTaskId=<?php echo $row['taskId']; ?>" class="btn btn-info stretched-link">EDIT</a>
-                                    <a href="managerInterface.php?deleteTaskId=<?php echo $row['taskId']; ?>" onclick="return confirmDelete()" class="btn btn-danger stretched-link">Delete</a>
-                                    <a href="managerInterface.php?addNewTask=<?php echo $row['userId']; ?>" class="btn btn-primary stretched-link" >Assign New Task</a>
+                                    <a href="managerInterface.php?editTaskId=<?php echo $row['taskId']; ?>" >EDIT</a>|
+                                    <a href="managerInterface.php?deleteTaskId=<?php echo $row['taskId']; ?>" onclick="return confirmDelete()">Delete</a>|
+                                    <a href="managerInterface.php?addNewTask=<?php echo $row['userId']; ?>" >Assign New Task</a>|
+                                    <a href="managerInterface.php?completeTaskId=<?php echo $row['taskId']; ?>" >Marks as Completed</a>|
                                 </td>
                             </tr>
                 <?php endif; endwhile; endif; ?>
@@ -547,9 +561,10 @@
                                     <td><?php echo $row['taskTitle']; ?></td>
                                     <td><?php echo $row['taskDisc'] ?></td>
                                     <td>
-                                        <a href="managerInterface.php?editTaskId=<?php echo $row['taskId']; ?>" class="btn btn-info stretched-link">EDIT</a>
-                                        <a href="managerInterface.php?deleteTaskId=<?php echo $row['taskId']; ?>" onclick="return confirmDelete()" class="btn btn-danger stretched-link">Delete</a>
-                                        <a href="managerInterface.php?addNewTask=<?php echo $row['userId']; ?>" class="btn btn-primary stretched-link" >Assign New Task</a>
+                                        <a href="managerInterface.php?editTaskId=<?php echo $row['taskId']; ?>" >EDIT</a>|
+                                        <a href="managerInterface.php?deleteTaskId=<?php echo $row['taskId']; ?>" onclick="return confirmDelete()">Delete</a>|
+                                        <a href="managerInterface.php?addNewTask=<?php echo $row['userId']; ?>" >Assign New Task</a><br/>|
+                                        <a href="managerInterface.php?completeTaskId=<?php echo $row['taskId']; ?>"  >Marks as Completed</a>|
                                     </td>
                                 </tr>
                     <?php endif; endif;
@@ -684,7 +699,7 @@
     <div class="container">
         <!-- div to show information for designer -->
             <?php
-                if(isset($_GET['showDesigner'])):
+                if(isset($_GET['designer'])):
                 $userRole='designer'; 
                 ?>
                 <table class="table">
@@ -741,7 +756,7 @@
     <div class="container">
         <!-- div to show information for developer -->
             <?php
-                if(isset($_GET['showDeveloper'])):
+                if(isset($_GET['developer'])):
                 $userRole='developer'; 
                 ?>
                 <table class="table">
@@ -798,8 +813,124 @@
     <div class="container">
         <!-- div to show information for testing -->
             <?php
-                if(isset($_GET['showTesting'])):
+                if(isset($_GET['testing'])):
                 $userRole='testing'; 
+                ?>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">SR. no.</th>
+                            <th scope="col">USER Id</th>
+                            <th scope="col">User Name</th>
+                            <th scope="col">User Email</th>
+                            <th scope="col">User Role</th>
+                            <th scope="col">User Approval</th>
+                            <th scope="col">User Modification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    $dbObj=new dbConnection();
+                    $queryObj=new createDataQuery();
+                    $userObj=new userChange();
+                    $dbObj->connectDb();
+                    $queryObj->selectDataWithUserRole($userRole);                    
+                    $result=userChange::handleAnyQuery($dbObj->con,$queryObj->myQuery);
+                    $dbObj->dissconnectDb();
+                    if($result)
+                        $srNo=0; ?>
+                        <?php
+                            while($row=$result->fetch_assoc()):
+                                        $srNo+=1; ?>
+                                    <!-- all user information for the Manager -->
+                                    <tr>
+                                        <td><?php echo $srNo;  ?></td>
+                                        <td><?php echo $row['userId'];  ?></td>
+                                        <td><?php echo $row['userName'];  ?></td>
+                                        <td><?php echo $row['userEmail'];  ?></td>
+                                        <td><?php echo $row['userRole'];  ?></td>
+                                        <td><?php echo $row['valid'];  ?></td>
+                                        <td>
+                                            <a href="managerInterface.php?editMe=<?php echo $row['userId'];  ?>" > Edit </a>|
+                                            <?php if($row['valid']=='yes'): ?>
+                                                <a href="managerInterface.php?blockMe=<?php  echo $row['userId'];  ?>" > Block</a>|
+                                                <?php else: ?>
+                                                    <a href="managerInterface.php?validMe=<?php  echo $row['userId'];  ?>" > Approve</a>|
+                                                <?php endif; ?>
+                                            <a href='managerInterface.php?deleteMe=<?php echo $row['userId']; ?>' onclick= "return confirmDelete()" > Delete</a>|
+                                            <a href="managerInterface.php?addNewTask=<?php echo $row['userId']; ?>" >Assign New Task</a>
+                                        </td>
+                                    </tr>
+                                    
+                            <?php endwhile; ?>
+                    </tbody>
+                </table>
+                <?php endif; ?>
+    </div>
+
+    <div class="container">
+        <!-- div to show information for admin -->
+            <?php
+                if(isset($_GET['admin'])):
+                $userRole='admin'; 
+                ?>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">SR. no.</th>
+                            <th scope="col">USER Id</th>
+                            <th scope="col">User Name</th>
+                            <th scope="col">User Email</th>
+                            <th scope="col">User Role</th>
+                            <th scope="col">User Approval</th>
+                            <th scope="col">User Modification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    $dbObj=new dbConnection();
+                    $queryObj=new createDataQuery();
+                    $userObj=new userChange();
+                    $dbObj->connectDb();
+                    $queryObj->selectDataWithUserRole($userRole);                    
+                    $result=userChange::handleAnyQuery($dbObj->con,$queryObj->myQuery);
+                    $dbObj->dissconnectDb();
+                    if($result)
+                        $srNo=0; ?>
+                        <?php
+                            while($row=$result->fetch_assoc()):
+                                        $srNo+=1; ?>
+                                    <!-- all user information for the Manager -->
+                                    <tr>
+                                        <td><?php echo $srNo;  ?></td>
+                                        <td><?php echo $row['userId'];  ?></td>
+                                        <td><?php echo $row['userName'];  ?></td>
+                                        <td><?php echo $row['userEmail'];  ?></td>
+                                        <td><?php echo $row['userRole'];  ?></td>
+                                        <td><?php echo $row['valid'];  ?></td>
+                                        <td>
+                                            <a href="managerInterface.php?editMe=<?php echo $row['userId'];  ?>" > Edit </a>|
+                                            <?php if($row['valid']=='yes'): ?>
+                                                <a href="managerInterface.php?blockMe=<?php  echo $row['userId'];  ?>" > Block</a>|
+                                                <?php else: ?>
+                                                    <a href="managerInterface.php?validMe=<?php  echo $row['userId'];  ?>" > Approve</a>|
+                                                <?php endif; ?>
+                                            <a href='managerInterface.php?deleteMe=<?php echo $row['userId']; ?>' onclick= "return confirmDelete()" > Delete</a>|
+                                            <a href="managerInterface.php?addNewTask=<?php echo $row['userId']; ?>" >Assign New Task</a>
+                                        </td>
+                                    </tr>
+                                    
+                            <?php endwhile; ?>
+                    </tbody>
+                </table>
+                <?php endif; ?>
+    </div>
+
+    <div class="container">
+        <!-- div to show information for admin -->
+            <?php
+                if(isset($_GET['manager'])):
+                $userRole='manager'; 
                 ?>
                 <table class="table">
                     <thead>

@@ -2,7 +2,7 @@
     class dbConnection{
         private $serverName="localhost";  #  this is hostName
         private $userName="root";    # this the user name for the database
-        private $userPass="";    #this is the password for the user database  
+        private $userPass="root";    #this is the password for the user database  
         private $dbName="usermanagement";    #this is the official name of our database
         public $con = FALSE;
         #this method will try to connect database for the different purposes;
@@ -79,7 +79,7 @@
         private $tableName = 'usertask';
         //this method will add new user into our database
         public function addTaskQuery($userId,$taskTitle,$taskDisc){
-            $this->myQuery="INSERT INTO `$this->tableName` (`userId`, `taskTitle`, `taskDisc`) VALUES ('$userId', '$taskTitle', '$taskDisc');";
+            $this->myQuery="INSERT INTO `usermanagement`.`$this->tableName` (`userId`, `taskTitle`, `taskDisc`) VALUES ('$userId', '$taskTitle', '$taskDisc');";
             // echo "i'm working Buddy";
             return $this->myQuery;
         }

@@ -192,7 +192,7 @@
                         Hurray! You have no Pending Task.
                     </div>
                 <?php endif; ?>
-                <a href="managerInterface.php?addNewTask=<?php echo $row['userId']; ?>" class="btn btn-primary">Add New Task</a>
+                <a href="staffInterface.php?addNewTask=true" class="btn btn-primary">Add New Task</a>
                 <?php endif; ?>
                 
         </div>
@@ -246,8 +246,8 @@
         <!-- Complete any taks -->
         <div>  
         <?php
-            if(isset($_GET['completeTaskId'])):
-                $taskId=$_GET['completeTaskId'];
+            if(isset($_GET['completedTaskId'])):
+                $taskId=$_GET['completedTaskId'];
                 $dbObj=new dbConnection();
                 $dbObj->connectDb();
                 $queryObj=new createTaskQuery();
@@ -312,7 +312,7 @@
         <div>
         <!-- EDIT ANY GIVEN TASK -->
         <?php 
-            if(isset($_POST['updateTask'])){
+            if(isset($_POST['updateTask'])):
                 $taskId=$_POST['taskId'];
                 $taskTitle=$_POST['taskTitleEdit'];
                 $taskDesc=$_POST['taskDiscEdit'];
@@ -324,16 +324,15 @@
                 $queryObj->updateTask($taskId,$taskTitle,$taskDesc);
                 $result = mysqli_query($dbObj->con,$queryObj->myQuery);
                 $dbObj->dissconnectDb();
-                if($result){
-                    echo "<div class=\"alert alert-success\"role=\"alert\">
+                if($result): ?>
+                    echo "<div class="alert alert-success"role="alert">
                     Task is updated successfully
-                </div>";
-                }else{
-                    echo "<div class=\"alert alert-danger\"role=\"alert\">
+                </div>
+              <?php  else: ?>
+                    echo "<div class="alert alert-danger"role="alert">
                     Sorry! but currently we are not able to do this task!
-                </div>";
-                }
-            } 
+                </div>
+            <?php endif; endif; 
         ?>
         <?php
             if(isset($_GET['editTaskId'])):
